@@ -58,12 +58,16 @@
     [+] Finish Time: 2019-11-20 10:54:15
 
 The result of the scan should be similar to this:
-
 ![s](https://s2.ax1x.com/2019/11/20/MWK8YR.png )
 
 
 You can manually turn off the color optput with  --no-color
 ![](https://s2.ax1x.com/2019/11/20/MWQ6L8.png)
+
+
+## Scraper Mod
+The result should be similar to this:
+![](https://s2.ax1x.com/2019/11/21/M5R3Xd.png)
 
 # Bug or Issue
 Let me know if there is a bug or issue
