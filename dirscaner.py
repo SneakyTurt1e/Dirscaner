@@ -52,8 +52,6 @@ def main():
 				cookie_jar=make.make_cookie(args.cookies)
 				#print(cookie_jar)
 
-
-
 			url.formarturl(args.url,args.dirpath,args.ext)
 			Allurl=list(set(Allurl))
 
@@ -284,7 +282,7 @@ class _display:
 
 	def EndBanner(self):
 		endtime = datetime.datetime.now()
-		print('+'+'-'*84)
+		print('+'+'-'*84+' '*10)
 		print("[+] Scan Finish ")
 		print("[+] Time used: %ds"%(endtime - self.start_time).seconds)
 		print("[+] Finish Time: "+ time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
@@ -294,7 +292,7 @@ class _display:
 		#print(requrl)
 		a = 50 - len(requrl)
 		b =75 - int(len(requrl)+a+len(str(page_size)))
-		c = ' '*10
+		c = ' '*25
 		if recode.startswith('2') and args.nocolor == False:
 			print("\033[1;32m"+
 			'[+] '+requrl + " "*a +str(page_size) + " "*b+recode+
@@ -325,7 +323,7 @@ class _display:
 		#pbar = tqdm(total=len(Allurl))
 		a = 50 - len(requrl)
 		#time.sleep(0.1)
-		print('[*] Requesting:%s'%requrl+' '*a+'[%d / %d]'%(counturl,len(Allurl))+' {:.2%}'.format(counturl/len(Allurl))+' '*5,end="\r")
+		print('[*] Requesting:%s'%requrl+' '*a+'[%d / %d]'%(counturl,len(Allurl))+' {:.2%}'.format(counturl/len(Allurl))+' '*25,end="\r")
 		#pbar.update(1)
 
 
