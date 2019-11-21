@@ -83,6 +83,8 @@ def main():
 			start.basic_reslo()
 			if args.output:
 				writeinto()
+	except FileNotFoundError:
+		print('[-] Wordlist does not exist [no such file or directory]')
 	except:
 		print('[-] Missing arguments')
 		print('[-] Try -h or --help to check the usage')
@@ -181,7 +183,8 @@ class _request:
 				s.keep_alive = False
 				s.mount('http://', HTTPAdapter(max_retries=args.retimes))
 				s.mount('https://', HTTPAdapter(max_retries=args.retimes))      
-				response = s.get(requrl, allow_redirects=False,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
+				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
+										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 				#print(self.response)
@@ -194,19 +197,22 @@ class _request:
 			except requests.exceptions.ConnectionError as conerr:
 				print("[!] Too Fast..Trying to sleep for few second ..zZZ [ConnectionError]")
 				time.sleep(round(random.uniform(3,5),2))
-				response = s.get(requrl, allow_redirects=False,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
+				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
+										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 			except urllib3.exceptions.MaxRetryError as retry_err:
 				print("[!] Too Fast..Trying to sleep for few second ..zZZ [MaxRetryError]")
 				time.sleep(round(random.uniform(3,5),2))
-				response = s.get(requrl, allow_redirects=False,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
+				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
+										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 			except urllib3.exceptions.NewConnectionError as new_err:
 				print("[!] Too Fast..Trying to sleep for few second ..zZZ [NewConnectionError]")
 				time.sleep(round(random.uniform(3,5),2))
-				response = s.get(requrl, allow_redirects=False,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
+				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
+										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 
@@ -388,7 +394,7 @@ class _scraper:
 		else:
 			user_agent = random_UA()
 		try:
-			response = requests.get(requrl, allow_redirects=False,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
+			response = requests.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
 											,headers={'Connection':'close','User-Agent':user_agent})
 			webpage = html.fromstring(response.content)			
 			self.a_href=webpage.xpath('//a/@href')
@@ -496,6 +502,12 @@ if __name__ == "__main__":
 
 	parser.add_argument('--add-slash',dest='addslash',help="Add '/' after each request",
 					action="store_true",default=False)
+
+	parser.add_argument('--ssl-check',dest='sslcheck',help="Enable SSL certificate verification",
+					action="store_true",default=False)
+
+	parser.add_argument('--allow-re',dest='allow_redirect',help="Follow redirects",
+					action="store_true",default=False)	
 
 	group.add_argument('--scraper',dest='scraper',help="Scraper Mod. Scraper all url in <a href>",
 					action="store_true",default=False)
