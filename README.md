@@ -12,7 +12,7 @@
     -t THREAD                         Number of thread [Default: 4]
     -s size [size ...]                Size filter,will skip pages with these/this size
     --time-out TIMEOUT                HTTP Timeout [Default 10]
-    --time-retry times                 The number of retry attempts when the request fails [Default 6]
+    --time-retry times                The number of retry attempts when the request fails [Default 6]
     --user-agent UA                   Request's user agnet [Default Random]
     --no-color                        Turn off color outputs
     --cookie COOKIES                  Your cookies to use in requests [e.g:key1:value1,key2=value2...]
@@ -57,7 +57,7 @@
     [+] Time used: 0s
     [+] Finish Time: 2019-11-20 10:54:15
 
-The result of the operation should be similar to this:
+The result of the scan should be similar to this:
 
 ![s](https://s2.ax1x.com/2019/11/20/MWK8YR.png )
 
