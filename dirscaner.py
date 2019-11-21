@@ -432,69 +432,74 @@ It supports multi-threading ,filter the response code,
 file extension and page size,customize the cookies and user agent,
 Can detect the server through the proxy.
 '''
+
+
+
 epilog= "More Info: https://github.com/SneakyTurt1e/DirScaner"
 
 
 
 
-Allurl = []
-writelist=[]
-counturl=0
-proxies_jar=None
-cookies_jar=None
 
-q = queue.Queue()
-print(_Banner)
+if __name__ == "__main__":
+	Allurl = []
+	writelist=[]
+	counturl=0
+	proxies_jar=None
+	cookies_jar=None
 
-parser = argparse.ArgumentParser(description=description,epilog=epilog)
+	q = queue.Queue()
+	print(_Banner)
 
-group = parser.add_mutually_exclusive_group()
+	parser = argparse.ArgumentParser(description=description,epilog=epilog)
 
-parser.add_argument("-u", "--url",dest='url',help="Target Url",type=str,
-				metavar='url',required=True)
+	group = parser.add_mutually_exclusive_group()
 
-group.add_argument('-d',dest='dirpath',help="Wordlist Path",
-				metavar='location',required=False)
+	parser.add_argument("-u", "--url",dest='url',help="Target Url",type=str,
+					metavar='url',required=True)
 
-parser.add_argument("-o","--output",dest='output',help="Location and name of output file",
-				type=str)
+	group.add_argument('-d',dest='dirpath',help="Wordlist Path",
+					metavar='location',required=False)
 
-parser.add_argument('-b',dest='banlist',help="Baned response code [Default:Null  e.g:404 302]",
-				type=str,metavar='code',nargs='+',default=[])
+	parser.add_argument("-o","--output",dest='output',help="Location and name of output file",
+					type=str)
 
-parser.add_argument('-e',dest='ext',help="File extension",type=str,
-				metavar='ext',nargs='+')
+	parser.add_argument('-b',dest='banlist',help="Baned response code [Default:Null  e.g:404 302]",
+					type=str,metavar='code',nargs='+',default=[])
 
-parser.add_argument('-t',dest='thread',help="Number of thread [Default: 4]",
-				type=int,default=4)
+	parser.add_argument('-e',dest='ext',help="File extension",type=str,
+					metavar='ext',nargs='+')
 
-parser.add_argument('-s',dest='size',help="Size filter,will skip pages with these/this size",
-				metavar='size',type=int,nargs='+')
+	parser.add_argument('-t',dest='thread',help="Number of thread [Default: 4]",
+					type=int,default=4)
 
-parser.add_argument('--time-out',dest='timeout',help="HTTP Timeout [Default 10]",
-				type=int,default=10)
+	parser.add_argument('-s',dest='size',help="Size filter,will skip pages with these/this size",
+					metavar='size',type=int,nargs='+')
 
-parser.add_argument('--time-retry',dest='retimes',help="The number of retry attempts when the request fails [Default 6]",
-					metavar='time',type=int,default=6)
+	parser.add_argument('--time-out',dest='timeout',help="HTTP Timeout [Default 10]",
+					type=int,default=10)
 
-parser.add_argument('--user-agent',dest='UA',help="Request's user agnet [Default Random]",
-				type=str)
+	parser.add_argument('--time-retry',dest='retimes',help="The number of retry attempts when the request fails [Default 6]",
+						metavar='time',type=int,default=6)
 
-parser.add_argument('--no-color',dest='nocolor',help="Turn off color outputs",
-				action="store_true",default=False)
+	parser.add_argument('--user-agent',dest='UA',help="Request's user agnet [Default Random]",
+					type=str)
 
-parser.add_argument('--cookie',dest='cookies',help="Your cookies to use in requests [e.g:key1:value1,key2=value2...]",
-				default="")
+	parser.add_argument('--no-color',dest='nocolor',help="Turn off color outputs",
+					action="store_true",default=False)
 
-parser.add_argument('--proxy',dest='proxies',help="Use proxy to request [e.g:http(s)://user:pass@IP:PORT,proxy2...]",
-				metavar='Proxy',default="")
+	parser.add_argument('--cookie',dest='cookies',help="Your cookies to use in requests [e.g:key1:value1,key2=value2...]",
+					default="")
 
-parser.add_argument('--add-slash',dest='addslash',help="Add '/' after each request",
-				action="store_true",default=False)
+	parser.add_argument('--proxy',dest='proxies',help="Use proxy to request [e.g:http(s)://user:pass@IP:PORT,proxy2...]",
+					metavar='Proxy',default="")
 
-group.add_argument('--scraper',dest='scraper',help="Scraper Mod. Scraper all url in <a href>",
-				action="store_true",default=False)
+	parser.add_argument('--add-slash',dest='addslash',help="Add '/' after each request",
+					action="store_true",default=False)
 
-args = parser.parse_args()
+	group.add_argument('--scraper',dest='scraper',help="Scraper Mod. Scraper all url in <a href>",
+					action="store_true",default=False)
 
-main()
+	args = parser.parse_args()
+
+	main()
