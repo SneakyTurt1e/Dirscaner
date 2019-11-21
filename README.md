@@ -18,6 +18,8 @@
     --cookie COOKIES                  Your cookies to use in requests [e.g:key1:value1,key2=value2...]
     --proxy Proxy                     Use proxy to requests 	[e.g:http(s)://user:pass@IP:PORT,proxy2...]
     --add-slash                       Add '/' after each request
+    --ssl-check                       Enable SSL certificate verification
+    --allow-re                        Follow redirects
     --scraper                         Scraper Mod. Scraper all url in <a href>
 
 # Usage
