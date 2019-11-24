@@ -51,6 +51,9 @@ def main():
 				make=_makedict()
 				cookie_jar=make.make_cookie(args.cookies)
 				#print(cookie_jar)
+			if args.sslcheck == False:
+				import requests.packages.urllib3
+				requests.packages.urllib3.disable_warnings()
 
 			url.formarturl(args.url,args.dirpath,args.ext)
 			Allurl=list(set(Allurl))
@@ -78,6 +81,9 @@ def main():
 				make=_makedict()
 				cookie_jar=make.make_cookie(args.cookies)
 				#print(cookie_jar)
+			if args.sslcheck == False:
+				import requests.packages.urllib3
+				requests.packages.urllib3.disable_warnings()
 			show.StartBanner()
 			start.screper_req(args.url)
 			start.basic_reslo()
