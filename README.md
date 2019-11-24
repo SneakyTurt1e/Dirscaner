@@ -1,6 +1,9 @@
 # Dirscaner
 - Dirscaner is a tools to brute-force web directories.
 
+# To do
+- Try to solve the error exception when requesting IP address from DNS under high thread. [Currently you can try to add IP and corresponding domain in the ***hosts*** file.]
+- Add more error exception handling.
 
 #  Features
     -h, --help                        show this help message and exit
