@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import re
@@ -54,7 +54,6 @@ def main():
 			if args.sslcheck == False:
 				import requests.packages.urllib3
 				requests.packages.urllib3.disable_warnings()
-
 			url.formarturl(args.url,args.dirpath,args.ext)
 			Allurl=list(set(Allurl))
 
@@ -81,9 +80,6 @@ def main():
 				make=_makedict()
 				cookie_jar=make.make_cookie(args.cookies)
 				#print(cookie_jar)
-			if args.sslcheck == False:
-				import requests.packages.urllib3
-				requests.packages.urllib3.disable_warnings()
 			show.StartBanner()
 			start.screper_req(args.url)
 			start.basic_reslo()
@@ -91,6 +87,9 @@ def main():
 				writeinto()
 	except FileNotFoundError:
 		print('[-] Wordlist does not exist [no such file or directory]')
+	except KeyboardInterrupt:
+		print('\n'+'[-] Input interrupt')
+		sys.exit()
 	except:
 		print('[-] Missing arguments')
 		print('[-] Try -h or --help to check the usage')
@@ -294,7 +293,7 @@ class _display:
 
 	def EndBanner(self):
 		endtime = datetime.datetime.now()
-		print('+'+'-'*84+' '*10)
+		print('+'+'-'*84+' ')
 		print("[+] Scan Finish ")
 		print("[+] Time used: %ds"%(endtime - self.start_time).seconds)
 		print("[+] Finish Time: "+ time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
@@ -304,7 +303,7 @@ class _display:
 		#print(requrl)
 		a = 50 - len(requrl)
 		b =75 - int(len(requrl)+a+len(str(page_size)))
-		c = ' '*25
+		c = ' '*40
 		if recode.startswith('2') and args.nocolor == False:
 			print("\033[1;32m"+
 			'[+] '+requrl + " "*a +str(page_size) + " "*b+recode+
@@ -318,24 +317,29 @@ class _display:
 			'[?] '+requrl + " "*a +str(page_size) + " "*b +recode +' '*5+'--->'+' '*3+relocation+
 			"\033[0m"+c)
 		elif recode.startswith('3') and args.nocolor ==True:
-			print('[?] '+requrl + " "*a +str(page_size) + " "*b+recode+' '*5+'--->'+' '*3+relocation +c)
+			print('[?] '+requrl + " "*a +str(page_size) + " "*b+recode+' '*5+'--->'+' '*3+relocation+c)
 
 
 		elif recode.startswith('4') and args.nocolor == False:
 			print("\033[1;31m"+
 			'[-] '+requrl + " "*a +str(page_size) + " "*b+recode+
-			"\033[0m" +c)
-			
+			"\033[0m"+c)			
 		elif recode.startswith('4') and args.nocolor == True:
-			print('[+] '+requrl + " "*a +str(page_size) + " "*b+recode +c)
+			print('[+] '+requrl + " "*a +str(page_size) + " "*b+recode+c)
 
 
 	def ProgressBar(self,requrl):
 		# time.sleep(1)
-		#pbar = tqdm(total=len(Allurl))
 		a = 50 - len(requrl)
+		sz = os.get_terminal_size()
 		#time.sleep(0.1)
-		print('[*] Requesting:%s'%requrl+' '*a+'[%d / %d]'%(counturl,len(Allurl))+' {:.2%}'.format(counturl/len(Allurl))+' '*25,end="\r")
+
+		alllen = '[*] Requesting:%s'%requrl+' '*a+'[%d / %d]'%(counturl,len(Allurl))+' {:.2%}'.format(counturl/len(Allurl))
+		barlen = sz.columns - len(alllen) - 1
+
+		allbar = alllen +' '*barlen + '\r'
+		sys.stdout.write(allbar)
+		sys.stdout.flush()
 		#pbar.update(1)
 
 
