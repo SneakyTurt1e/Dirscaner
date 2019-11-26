@@ -27,7 +27,7 @@
 
 # Usage
 -     git clone https://github.com/SneakyTurt1e/Dirscaner.git
--     pip install requirements.txt
+-     pip install -r requirements.txt
 -     python dirscaner.py -h or python3 dirscaner.py -h
 # Example
     python dirscaner.py -u http://www.mysite.com -d dir.txt
