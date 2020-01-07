@@ -7,10 +7,12 @@ try:
 	import requests
 except:
 	print("Try 'pip install requests' to install requests")
+	sys.exit()
 try:
 	from lxml import html
 except:
 	print("Try 'pip install lxml' to install lxml")
+	sys.exit()
 import threading
 import random
 import queue
@@ -29,13 +31,16 @@ from requests.packages.urllib3.util.retry import Retry
 def main():
 	global Allurl
 	global proxies_jar
-	global cookie_jar
+	global cookie_jar	
 	try:
 
 
 	#
 	# Brute-force active
 	#
+		if args.output:
+			global f
+			f = open(args.output,'w')
 		if  args.scraper == False:
 			url = _dealurl()
 			show=_display()
@@ -62,14 +67,16 @@ def main():
 			start.set_thread()
 			show.EndBanner()
 			if args.output:
-				writeinto()
+				f.close()
+
+
+
 
 
 	#
 	# If Scraper active
 	#
 		elif args.scraper == True:
-
 			show=_display()
 			start=_scraper()
 			if args.proxies:
@@ -84,15 +91,17 @@ def main():
 			start.screper_req(args.url)
 			start.basic_reslo()
 			if args.output:
-				writeinto()
+				f.close()
+
 	except FileNotFoundError:
 		print('[-] Wordlist does not exist [no such file or directory]')
 	except KeyboardInterrupt:
 		print('\n'+'[-] Input interrupt')
 		sys.exit()
-	except:
-		print('[-] Missing arguments')
-		print('[-] Try -h or --help to check the usage')
+
+	# except:
+	# 	print('[-] Missing arguments')
+	# 	print('[-] Try -h or --help to check the usage')
 
 
 
@@ -200,21 +209,21 @@ class _request:
 				print('[-] Too Many Redirects')
 
 			except requests.exceptions.ConnectionError as conerr:
-				print("[!] Too Fast..Trying to sleep for few second ..zZZ [ConnectionError]")
+				print("[!] Something Wrong..Trying to sleep for few second ..zZZ [ConnectionError]")
 				time.sleep(round(random.uniform(3,5),2))
 				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
 										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 			except urllib3.exceptions.MaxRetryError as retry_err:
-				print("[!] Too Fast..Trying to sleep for few second ..zZZ [MaxRetryError]")
+				print("[!] Something Wrong..Trying to sleep for few second ..zZZ [MaxRetryError]")
 				time.sleep(round(random.uniform(3,5),2))
 				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
 										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
 			except urllib3.exceptions.NewConnectionError as new_err:
-				print("[!] Too Fast..Trying to sleep for few second ..zZZ [NewConnectionError]")
+				print("[!] Something Wrong..Trying to sleep for few second ..zZZ [NewConnectionError]")
 				time.sleep(round(random.uniform(3,5),2))
 				response = s.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout
 										,cookies=cookies_jar,proxies=proxies_jar
@@ -226,7 +235,7 @@ class _request:
 
 	def dealresponse(self,response,requrl):
 		#print(requrl)
-		global writelist
+		global f
 		relocation = None
 		recode=str(response.status_code)
 		page_size = len(response.text)
@@ -237,7 +246,8 @@ class _request:
 			else:
 				_display._displayUrl(self,requrl,page_size,recode,relocation)
 				if args.output:
-					writelist.append('[%s]'%recode+' '*3+requrl)
+					i = '[%s]'%recode+' '*3+requrl
+					f.write(i+'\n')
 
 		elif recode not in args.banlist and recode.startswith('3'):
 			relocation = response.headers['Location']
@@ -246,7 +256,8 @@ class _request:
 			else:
 				_display._displayUrl(self,requrl,page_size,recode,relocation)
 				if args.output:
-					writelist.append('[%s]'%recode+' '*3+requrl)
+					i = '[%s]'%recode+' '*3+requrl
+					f.write(i+'\n')
 
 		elif recode not in args.banlist and recode.startswith('4'):
 			if type(args.size) == list and page_size in args.size:
@@ -254,15 +265,15 @@ class _request:
 			else:
 				_display._displayUrl(self,requrl,page_size,recode,relocation)
 				if args.output:
-					#writeinto(requrl,recode)
-					writelist.append('[%s]'%recode+' '*3+requrl)		
+					i = '[%s]'%recode+' '*3+requrl
+					f.write(i+'\n')		
 
 
 
 
 # display
 class _display:
-	#start_time=None
+
 	def StartBanner(self):
 		print("+"+"-"*84)
 		print("| DirScaner")
@@ -293,7 +304,7 @@ class _display:
 
 	def EndBanner(self):
 		endtime = datetime.datetime.now()
-		print('+'+'-'*84+' ')
+		print('+'+'-'*83+'+'+' ')
 		print("[+] Scan Finish ")
 		print("[+] Time used: %ds"%(endtime - self.start_time).seconds)
 		print("[+] Finish Time: "+ time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
@@ -330,17 +341,14 @@ class _display:
 
 	def ProgressBar(self,requrl):
 		# time.sleep(1)
-		a = 50 - len(requrl)
 		sz = os.get_terminal_size()
-		#time.sleep(0.1)
 
-		alllen = '[*] Requesting:%s'%requrl+' '*a+'[%d / %d]'%(counturl,len(Allurl))+' {:.2%}'.format(counturl/len(Allurl))
+		alllen = '[*] [{:.2%}'.format(counturl/len(Allurl)) + '| %d / %d]'%(counturl,len(Allurl))+'  Requesting:%s' %requrl
 		barlen = sz.columns - len(alllen) - 1
 
 		allbar = alllen +' '*barlen + '\r'
 		sys.stdout.write(allbar)
 		sys.stdout.flush()
-		#pbar.update(1)
 
 
 
@@ -385,11 +393,8 @@ class _makedict:
 
 
 
-#write into file
-def writeinto():
-	with open(args.output,'w') as f:
-		for i in writelist:
-			f.write(i+'\n')
+
+
 
 
 #
@@ -426,7 +431,8 @@ class _scraper:
 				else:
 					print('[+] '+i)
 				if args.output:
-					writelist.append(i)
+					f.write(i+'\n')
+
 
 
 
@@ -459,7 +465,7 @@ epilog= "More Info: https://github.com/SneakyTurt1e/DirScaner"
 
 if __name__ == "__main__":
 	Allurl = []
-	writelist=[]
+	f = None
 	counturl=0
 	proxies_jar=None
 	cookies_jar=None
