@@ -16,18 +16,20 @@ except:
 import threading
 import random
 import queue
-import time
-import datetime
-import os
 import re
-from useragent.generater import random_UA
+
+import urllib3
+from modules.generater import random_useragent
+from modules.handleurl import formarturl
+from modules.display import *
+from modules.makedict import *
+
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 
 
 # Main
-
 def main():
 	global Allurl
 	global proxies_jar
@@ -42,32 +44,27 @@ def main():
 			global f
 			f = open(args.output,'w')
 		if  args.scraper == False:
-			url = _dealurl()
-			show=_display()
-			start = _request()
-			#print(random_ua)
+			start = request_url()
+			#print(random_useragent)
 			if args.proxies:
-
-				make=_makedict()
-				proxies_jar=make.make_proxies(args.proxies)
+				proxies_jar=make_proxies(args.proxies)
 				#print(proxies_jar)
-
 			if args.cookies:
-				make=_makedict()
-				cookie_jar=make.make_cookie(args.cookies)
+				cookie_jar=make_cookie(args.cookies)
 				#print(cookie_jar)
 			if args.sslcheck == False:
 				import requests.packages.urllib3
 				requests.packages.urllib3.disable_warnings()
-			url.formarturl(args.url,args.dirpath,args.ext)
+
+			Allurl = formarturl(args.url,args.dirpath,args.ext,args.addslash)
 			Allurl=list(set(Allurl))
-
-
-			show.StartBanner()
-			start.set_thread()
-			show.EndBanner()
+			#print(Allurl)
+			StartBanner(args.dirpath,args.url,args.thread,args.timeout,args.useragent,args.banlist,Allurl)
+			start.set_thread(Allurl)
+			EndBanner()
 			if args.output:
 				f.close()
+
 
 
 
@@ -77,17 +74,17 @@ def main():
 	# If Scraper active
 	#
 		elif args.scraper == True:
-			show=_display()
-			start=_scraper()
+			show=display()
+			start=scraper()
 			if args.proxies:
-				make=_makedict()
+				make=makedict()
 				proxies_jar=make.make_proxies(args.proxies)
 				#print(proxies_jar)
 			if args.cookies:
-				make=_makedict()
+				make=makedict()
 				cookie_jar=make.make_cookie(args.cookies)
 				#print(cookie_jar)
-			show.StartBanner()
+			show.Startbanner()
 			start.screper_req(args.url)
 			start.basic_reslo()
 			if args.output:
@@ -99,10 +96,6 @@ def main():
 		print('\n'+'[-] Input interrupt')
 		sys.exit()
 
-	# except:
-	# 	print('[-] Missing arguments')
-	# 	print('[-] Try -h or --help to check the usage')
-
 
 
 
@@ -110,67 +103,17 @@ def main():
 # Brute-force Class
 #
 
-# handle url
-class _dealurl:
-	global Allurl
-	def formarturl(self,url,dirpath,ext):
-		#global Allurl
-		if type(ext) == list:
-			for e in ext:
-				#print(i[0])
-				for line in open(dirpath,encoding='utf-8'):
-					#print(line)
-					if line.startswith('/'):
-						line = line.split('/')[1]
-					if url.endswith('/') == False:
-						#print(i)
-						if args.addslash == True:
-							Allurl.append(url + '/' +line.strip('\n')+e)
-							Allurl.append(url + '/' +line.strip('\n')+'/')
-						elif args.addslash == False:
-							Allurl.append(url + '/' +line.strip('\n')+e)
-							Allurl.append(url + '/' +line.strip('\n'))
-					elif url.endswith('/') == True:
-						if args.addslash == True:
-							Allurl.append(url +line.strip('\n')+ e)
-							Allurl.append(url +line.strip('\n')+'/')
-						elif args.addslash == False:
-							Allurl.append(url +line.strip('\n')+ e)
-							Allurl.append(url +line.strip('\n'))
-		else:
-			for line in open(dirpath,encoding='utf-8'):
-				if line.startswith('/'):
-					line = line.split('/')[1]
-				if url.endswith('/') == False:
-					if args.addslash == True:
-						Allurl.append(url + '/' + line.strip('\n') + '/')
-					elif args.addslash ==False:
-						Allurl.append(url +'/'+line.strip('\n'))
-						#a = url +'/'+line.strip('\n')
-						#return a
-					
-				elif url.endswith('/') == True:
-					if args.addslash == True:
-						Allurl.append(url +line.strip('\n')+'/')
-					elif args.addslash == False:
-						Allurl.append(url + line.strip('\n'))
-					#Allurl.append(url + line.strip('\n'))
-
-
-
 
 
 # request url
-class _request:
-
-	def set_thread(self):
+class request_url:
+	#print(proxies_jar)
+	def set_thread(self,Allurl):
 		#print(Allurl)
 		threads = []
-		#print(args.thread)
 		for task in Allurl:
 			#print(task)
 			q.put(task)
-			#print(q.get())
 		for i in range(int(args.thread)):
 			#print(i)
 			t = threading.Thread(target=self.requesturl)
@@ -184,15 +127,16 @@ class _request:
 		#print(q.get())
 		global counturl
 		while not q.empty():
+			#print(q.get())
 			requrl = q.get()
 			counturl +=1
-			_display.ProgressBar(self,requrl)
-			if args.UA:
-				user_agent = args.UA
+			ProgressBar(requrl,counturl,Allurl)
+			if args.useragent:
+				user_agent = args.useragent
 			else:
-				user_agent = random_UA()
+				user_agent = random_useragent()
 			try:
-				#print(user_agent)
+				#print(proxies_jar)
 				s = requests.Session()
 				s.keep_alive = False
 				s.mount('http://', HTTPAdapter(max_retries=args.retimes))
@@ -201,7 +145,6 @@ class _request:
 										,cookies=cookies_jar,proxies=proxies_jar
 										,headers={'Connection':'close','User-Agent':user_agent})
 				response.keep_alive = False
-				#print(self.response)
 				self.dealresponse(response,requrl)
 			except requests.exceptions.Timeout as timeou_text:
 				print('[-] Cannot connect to Host')
@@ -244,7 +187,7 @@ class _request:
 			if type(args.size) == list and page_size in args.size:
 				None
 			else:
-				_display._displayUrl(self,requrl,page_size,recode,relocation)
+				DisplayUrl(requrl,page_size,recode,relocation,args.nocolor)
 				if args.output:
 					i = '[%s]'%recode+' '*3+requrl
 					f.write(i+'\n')
@@ -254,7 +197,7 @@ class _request:
 			if type(args.size) == list and page_size in args.size:
 				None
 			else:
-				_display._displayUrl(self,requrl,page_size,recode,relocation)
+				DisplayUrl(requrl,page_size,recode,relocation,args.nocolor)
 				if args.output:
 					i = '[%s]'%recode+' '*3+requrl
 					f.write(i+'\n')
@@ -263,151 +206,22 @@ class _request:
 			if type(args.size) == list and page_size in args.size:
 				None
 			else:
-				_display._displayUrl(self,requrl,page_size,recode,relocation)
+				DisplayUrl(requrl,page_size,recode,relocation,args.nocolor)
 				if args.output:
 					i = '[%s]'%recode+' '*3+requrl
 					f.write(i+'\n')		
-
-
-
-
-# display
-class _display:
-
-	def StartBanner(self):
-		print("+"+"-"*84)
-		print("| DirScaner")
-		print("| By SneakyTurt1e https://github.com/SneakyTurt1e/")
-		print("+"+"-"*84)
-		if args.dirpath:
-			print("| Wordlist Path:",os.path.abspath(args.dirpath))
-		else:
-			print('| Wordlist Path: Scraper Mod')
-		print("| Target Url: ",args.url) 
-		print("| Threads: ",args.thread)	
-		print("| Timeout: %ds"%args.timeout)
-		if args.UA:
-			print("| User Agent: ",args.UA)
-		else:
-			print("| User Agent: Random")
-		print("| Baned Code: " + " ".join(args.banlist))
-		print("| Total requests: ",len(Allurl))
-		self.start_time = datetime.datetime.now()
-		print("| Start Time: " + time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
-		print("+"+"-"*83+'+')
-		if args.scraper == False:
-			print("| PAGE |" +" "*45+'| SIZE |' +" "*16 +'| CODE |')
-		elif args.scraper == True:
-			print("|"+' '*15+"    Note: The result may not be the standard url"+' '*20+"|")
-		print('+'+'-'*83+'+')
-
-
-	def EndBanner(self):
-		endtime = datetime.datetime.now()
-		print('+'+'-'*83+'+'+' ')
-		print("[+] Scan Finish ")
-		print("[+] Time used: %ds"%(endtime - self.start_time).seconds)
-		print("[+] Finish Time: "+ time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
-
-
-	def _displayUrl(self,requrl,page_size,recode,relocation):
-		#print(requrl)
-		a = 50 - len(requrl)
-		b =75 - int(len(requrl)+a+len(str(page_size)))
-		c = ' '*40
-		if recode.startswith('2') and args.nocolor == False:
-			print("\033[1;32m"+
-			'[+] '+requrl + " "*a +str(page_size) + " "*b+recode+
-			"\033[0m"+c)
-		elif recode.startswith('2') and args.nocolor ==True:
-			print('[+] '+requrl + " "*a +str(page_size) + " "*b+recode+c)
-
-
-		elif recode.startswith('3') and args.nocolor == False:
-			print("\033[1;33m"+
-			'[?] '+requrl + " "*a +str(page_size) + " "*b +recode +' '*5+'--->'+' '*3+relocation+
-			"\033[0m"+c)
-		elif recode.startswith('3') and args.nocolor ==True:
-			print('[?] '+requrl + " "*a +str(page_size) + " "*b+recode+' '*5+'--->'+' '*3+relocation+c)
-
-
-		elif recode.startswith('4') and args.nocolor == False:
-			print("\033[1;31m"+
-			'[-] '+requrl + " "*a +str(page_size) + " "*b+recode+
-			"\033[0m"+c)			
-		elif recode.startswith('4') and args.nocolor == True:
-			print('[+] '+requrl + " "*a +str(page_size) + " "*b+recode+c)
-
-
-	def ProgressBar(self,requrl):
-		# time.sleep(1)
-		sz = os.get_terminal_size()
-
-		alllen = '[*] [{:.2%}'.format(counturl/len(Allurl)) + '| %d / %d]'%(counturl,len(Allurl))+'  Requesting:%s' %requrl
-		barlen = sz.columns - len(alllen) - 1
-
-		allbar = alllen +' '*barlen + '\r'
-		sys.stdout.write(allbar)
-		sys.stdout.flush()
-
-
-
-# Convert to dictionary
-class _makedict:
-
-	def make_proxies(self,proxy):
-		proxies = dict()
-		value = proxy.split(',')
-		try:
-			for i in value:
-				if i.startswith('http://'):
-					proxies['http'] = i
-				elif i.startswith('https://'):
-					proxies['https'] = i
-				elif i.startswith('socks5://'):
-					proxies['http'] = i
-					proxies['https'] = i
-		except:
-			print('[-] Unsupport proxy type')
-		return proxies
-
-
-
-		# for i in value:
-		# 	if i.startswith('http'):
-		# 		proxies['http'] = i
-
-		# return proxies
-
-
-
-
-	def make_cookie(self,cookie):
-	    cookies = dict()
-	    value = cookie.split(',')
-
-	    for i in value:
-	        key, val = i.split(':')
-	        cookies[key] = val
-	    return cookies
-
-
-
-
-
-
 
 #
 # Scraper Class
 #
 
-class _scraper:
+class scraper:
 	def screper_req(self,requrl):
 		#print('1')
-		if args.UA:
-			user_agent = args.UA
+		if args.useragent:
+			user_agent = args.useragent
 		else:
-			user_agent = random_UA()
+			user_agent = random_useragent()
 		try:
 			response = requests.get(requrl, allow_redirects=args.allow_redirect,verify=args.sslcheck,timeout=args.timeout,cookies=cookies_jar,proxies=proxies_jar
 											,headers={'Connection':'close','User-Agent':user_agent})
@@ -437,7 +251,7 @@ class _scraper:
 
 
 
-_Banner='''
+banner='''
 ______  _       _____                                
 |  _  \(_)     /  ___|                               
 | | | | _  _ __\ `--.   ___  __ _  _ __    ___  _ __ 
@@ -469,9 +283,8 @@ if __name__ == "__main__":
 	counturl=0
 	proxies_jar=None
 	cookies_jar=None
-
 	q = queue.Queue()
-	print(_Banner)
+	print(banner)
 
 	parser = argparse.ArgumentParser(description=description,epilog=epilog)
 
@@ -504,7 +317,7 @@ if __name__ == "__main__":
 	parser.add_argument('--time-retry',dest='retimes',help="The number of retry attempts when the request fails [Default 6]",
 						metavar='time',type=int,default=6)
 
-	parser.add_argument('--user-agent',dest='UA',help="Request's user agnet [Default Random]",
+	parser.add_argument('--user-agent',dest='useragent',help="Request's user agnet [Default Random]",
 					type=str)
 
 	parser.add_argument('--no-color',dest='nocolor',help="Turn off color outputs",
