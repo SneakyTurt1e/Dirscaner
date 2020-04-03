@@ -14,16 +14,6 @@ def make_proxies(proxy):
 	return proxies
 
 
-
-	# for i in value:
-	# 	if i.startswith('http'):
-	# 		proxies['http'] = i
-
-	# return proxies
-
-
-
-
 def make_cookie(cookie):
     cookies = dict()
     value = cookie.split(',')
