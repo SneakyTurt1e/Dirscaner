@@ -74,7 +74,7 @@ def main():
 	# If Scraper active
 	#
 		elif args.scraper == True:
-			show=display()
+			StartBanner(args.dirpath,args.url,args.thread,args.timeout,args.useragent,args.banlist,Allurl)
 			start=scraper()
 			if args.proxies:
 				make=makedict()
