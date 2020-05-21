@@ -3,7 +3,7 @@ def formarturl(url,dirpaths,extention,addslash):
 	if type(extention) == list:
 		for e in extention:
 			#print(i[0])
-			for line in open(dirpaths,encoding='utf-8'):
+			for line in open(dirpaths,encoding='ISO-8859-1'):
 				#print(line)
 				if line.startswith('/'):
 					line = line.split('/')[1]
@@ -25,7 +25,7 @@ def formarturl(url,dirpaths,extention,addslash):
 			#print(Allurl)
 		return Allurl
 	else:
-		for line in open(dirpaths,encoding='utf-8'):
+		for line in open(dirpaths,encoding='ISO-8859-1'):
 			if line.startswith('/'):
 				line = line.split('/')[1]
 			if url.endswith('/') == False:
