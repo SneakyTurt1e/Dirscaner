@@ -23,7 +23,7 @@ def formarturl(url,dirpaths,extention,addslash):
 						Allurl.append(url +line.strip('\n')+ e)
 						Allurl.append(url +line.strip('\n'))
 			#print(Allurl)
-			return Allurl
+		return Allurl
 	else:
 		for line in open(dirpaths,encoding='utf-8'):
 			if line.startswith('/'):
